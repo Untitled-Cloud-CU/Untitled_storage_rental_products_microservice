@@ -1,0 +1,104 @@
+openapi: 3.0.3
+info:
+  title: Products/Orders Service API (v1)
+  version: 1.0.0
+  description: |
+    API-first definition with versioning and integration endpoints.
+servers:
+  - url: http://localhost:8080
+paths:
+  /api/v1/products:
+    get:
+      summary: List products
+      responses:
+        "200":
+          description: OK
+    post:
+      summary: Create product
+      responses:
+        "201":
+          description: Created
+
+  /api/v1/products/{product_id}:
+    parameters:
+      - name: product_id
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      summary: Get product by ID
+      responses:
+        "200":
+          description: OK
+    put:
+      summary: Update product
+      responses:
+        "200":
+          description: Updated
+    delete:
+      summary: Delete product
+      responses:
+        "204":
+          description: Deleted
+
+  /api/v1/orders:
+    get:
+      summary: List orders
+      responses:
+        "200":
+          description: OK
+    post:
+      summary: Create order
+      responses:
+        "201":
+          description: Created
+
+  /api/v1/orders/{order_id}:
+    parameters:
+      - name: order_id
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      summary: Get order by ID
+      responses:
+        "200":
+          description: OK
+    put:
+      summary: Update order
+      responses:
+        "200":
+          description: Updated
+    delete:
+      summary: Delete order
+      responses:
+        "204":
+          description: Deleted
+
+  /api/v1/orders/user/{user_id}:
+    parameters:
+      - name: user_id
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      summary: Get orders by user ID
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/orders/facility/{facility_id}:
+    parameters:
+      - name: facility_id
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      summary: Get orders by facility ID
+      responses:
+        "200":
+          description: OK
