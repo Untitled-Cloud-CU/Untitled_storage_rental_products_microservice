@@ -1,115 +1,148 @@
-# Products / Orders Microservice (Team: Wali + Aashish)
+# Storage Rental Service - Storage Units & Rentals Microservice (Team: Wali + Aashish)
 
-This repository implements the **Products/Orders microservice**, one of three services in our team’s distributed
-application for **Sprint 1**. It provides endpoints for managing product inventory and customer orders, and serves
-as the **Swagger-first** microservice in the architecture.
+This repository implements the **Storage Rental microservice** for a **Storage Rental Platform** (like Airbnb for storage). It provides endpoints for managing storage unit listings and rental bookings, and serves as the **Swagger/API-first** microservice in the architecture.
 
 ---
 
-## 📦 Architecture Overview
+## 🏗️ Architecture Overview
 
-This service defines resources for **Products** and **Orders** and provides integration endpoints to connect with
-the other microservices.
+This service manages two main resources:
 
-### Endpoints Overview
-| Path | Method | Description |
-|------|---------|-------------|
-| `/api/v1/products` | GET / POST | List or create products |
-| `/api/v1/products/{product_id}` | GET / PUT / DELETE | Retrieve, update, or delete a product |
-| `/api/v1/orders` | GET / POST | List or create orders |
-| `/api/v1/orders/{order_id}` | GET / PUT / DELETE | Retrieve, update, or delete an order |
-| `/api/v1/orders/user/{user_id}` | GET | Get all orders for a given user (integrates with Users service) |
-| `/api/v1/orders/facility/{facility_id}` | GET | Get all orders for a given facility (integrates with Locations service) |
+- **Storage Units**: Listings of available storage spaces (like property listings on Airbnb)
+- **Rentals**: Booking records when users rent storage units (like reservations)
 
-All endpoints currently return `501 Not Implemented` as placeholders for Sprint 1.
+### Key Concepts
+
+- **Owners**: Users who list their storage spaces for rent
+- **Renters**: Users who book/rent storage spaces
+- **Storage Units**: Physical storage spaces with details like size, type, location, and pricing
+- **Rentals**: Booking agreements between owners and renters
 
 ---
 
-## Folder Structure
+## 📋 Endpoints Overview
 
-```
-products-orders-service-v2/
-├── app/
-│   ├── main.py
-│   ├── models.py
-│   └── routers/
-│       ├── products.py
-│       └── orders.py
-├── docs/
-│   └── openapi.yaml
-├── requirements.txt
-└── .gitignore
-```
+### Storage Units
+
+| Path                                           | Method             | Description                                |
+| ---------------------------------------------- | ------------------ | ------------------------------------------ |
+| `/api/v1/storage-units`                        | GET / POST         | List or create storage units               |
+| `/api/v1/storage-units/{unit_id}`              | GET / PUT / DELETE | Retrieve, update, or delete a storage unit |
+| `/api/v1/storage-units/{unit_id}/rentals`      | GET                | Get storage unit with rental history       |
+| `/api/v1/storage-units/owner/{owner_user_id}`  | GET                | Get all units owned by a user              |
+| `/api/v1/storage-units/location/{location_id}` | GET                | Get all units at a location                |
+
+### Rentals
+
+| Path                                             | Method             | Description                          |
+| ------------------------------------------------ | ------------------ | ------------------------------------ |
+| `/api/v1/rentals`                                | GET / POST         | List or create rentals               |
+| `/api/v1/rentals/{rental_id}`                    | GET / PUT / DELETE | Retrieve, update, or delete a rental |
+| `/api/v1/rentals/{rental_id}/confirm`            | POST               | Confirm a pending rental             |
+| `/api/v1/rentals/{rental_id}/activate`           | POST               | Activate a confirmed rental          |
+| `/api/v1/rentals/{rental_id}/complete`           | POST               | Complete an active rental            |
+| `/api/v1/rentals/{rental_id}/cancel`             | POST               | Cancel a rental                      |
+| `/api/v1/rentals/renter/{renter_user_id}`        | GET                | Get rentals by renter                |
+| `/api/v1/rentals/owner/{owner_user_id}`          | GET                | Get rentals by owner                 |
+| `/api/v1/rentals/storage-unit/{storage_unit_id}` | GET                | Get rentals for a storage unit       |
+| `/api/v1/rentals/location/{location_id}`         | GET                | Get rentals at a location            |
+
+All endpoints currently return `501 Not Implemented` as placeholders for Sprint 1.
 
 ---
 
 ## How to Run Locally
 
-### 1️⃣ Clone the Repository
+### Clone the Repository
+
 ```bash
-git clone https://github.com/<your-username>/products-orders-service.git
-cd products-orders-service
+git clone <repository-url>
+cd products_microservice
 ```
 
-### 2️⃣ Create a Virtual Environment
+### Create a Virtual Environment
+
 ```bash
 python -m venv .venv
 source .venv/bin/activate   # macOS / Linux
 # or
-.venv\Scripts\activate    # Windows
+.venv\Scripts\activate      # Windows
 ```
 
-### 3️⃣ Install Dependencies
+### Install Dependencies
+
 ```bash
 pip install -r requirements.txt
 ```
 
-### 4️⃣ Run the Service
+### Run the Service
+
 ```bash
 uvicorn app.main:app --reload --port 8080
 ```
 
-### 5️⃣ Open in Browser
-•	Official Swagger spec (API-first design): open /docs/openapi.yaml in Swagger Editor
-This file is the true API contract for this microservice in Sprint 1.
-        You can open the spec visually in Swagger Editor:
-        1.	Go to 👉 https://editor.swagger.io
-        2.	In the top-left menu, click File → Import file…
-        3.	Select docs/openapi.yaml from this repository.
-        4.	Swagger Editor will render all endpoints and schemas. You can expand each operation (GET, POST, PUT, DELETE) and check parameters, request bodies, and responses.
+### View API Documentation
 
-        Swagger Editor automatically checks for:
-        •	Missing or invalid path parameters
-        •	Schema or type mismatches
-        •	Duplicated operation IDs
-        •	Invalid YAML indentation
+**Option 1: Swagger Editor (API-First Spec - Recommended)**
 
-•	Auto-generated FastAPI docs (for stub testing): http://localhost:8080/docs
-These are generated automatically by FastAPI from the placeholder routes.
----
+1. Go to https://editor.swagger.io
+2. Click **File → Import file...**
+3. Select `docs/openapi.yaml` from this repository
+4. The Swagger Editor will render all endpoints and schemas with validation
 
-## 🧱 Integration Notes
+## 🗄️ Database Schema
 
-- **Users Service (Sahasra + Molly)** → provides `/users/{id}` and authentication data used by orders.
-- **Locations Service (Thai + Rebecca)** → provides `/facilities/{id}` data used for mapping orders to facilities.
-- **Products / Orders Service (Wali + Aashish)** → defines the product and order management endpoints and integration routes.
+The database schema is defined in `/db/db/products.sql`:
 
-These services will later communicate via REST calls or service registry (to be defined in later sprints).
+### Tables
 
----
+1. **storage_units**: Storage unit listings
 
-## 📋 Sprint 1 Deliverables (for this repo)
+   - id, name, description, size, unit_type, dimensions
+   - location_id (FK to location service), owner_user_id
+   - price_amount, price_currency
+   - available, features (JSON)
+   - timestamps
 
-- [x] Swagger/OpenAPI spec (`/docs/openapi.yaml`)
-- [x] Placeholder endpoints returning 501
-- [x] Versioned routes `/api/v1/...`
-- [x] Integration endpoints added
-- [ ] Deploy service on a VM and connect from browser
-- [ ] Connect to MySQL instance on separate VM (future work)
+2. **rentals**: Rental bookings
+   - id, storage_unit_id (FK), renter_user_id, owner_user_id
+   - start_date, end_date
+   - monthly_rate_amount, monthly_rate_currency
+   - total_paid_amount, total_paid_currency
+   - status (pending, confirmed, active, completed, cancelled)
+   - notes, timestamps
 
 ---
 
-## 🧠 Summary
+## Data Models
 
-This microservice establishes the **API contract** for product and order data and demonstrates a **Swagger‑first design**
-workflow. It complements the other two microservices and sets the stage for data persistence and real integration in later sprints.
+### StorageUnit
+
+- **Size categories**: small, medium, large, extra_large
+- **Types**: indoor, outdoor, climate_controlled, vehicle, warehouse
+- **Features**: array of amenities (24/7 access, security cameras, etc.)
+
+### Rental
+
+- **Status flow**: pending → confirmed → active → completed
+- Can be cancelled at any time
+- Tracks monthly rate and total amount paid
+
+---
+
+## 🎯 Swagger-First Approach
+
+This microservice uses a **Swagger/API-first** design approach:
+
+- The `docs/openapi.yaml` file is the **source of truth** for the API contract
+- Models in code align with the OpenAPI spec
+- Spec is hand-written and validated before implementation
+- Complementary to other microservices using code-first approaches
+
+---
+
+## 👥 Team
+
+**Wali + Aashish**
+
+---

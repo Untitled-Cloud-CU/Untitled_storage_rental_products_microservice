@@ -1,104 +1,581 @@
 openapi: 3.0.3
 info:
-  title: Products/Orders Service API (v1)
+  title: Storage Rental - Storage Units & Rentals Service API
   version: 1.0.0
   description: |
-    API-first definition with versioning and integration endpoints.
+    API-first definition for Storage Rental Platform (like Airbnb for storage).
+
+    This microservice manages:
+    - Storage unit listings (like property listings)
+    - Rental bookings (like reservations)
+
+    Integrates with:
+    - Users Service: For owners and renters
+    - Locations Service: For storage unit addresses
+
 servers:
   - url: http://localhost:8080
+    description: Local development server
+
+tags:
+  - name: storage-units
+    description: Storage unit listing operations
+  - name: rentals
+    description: Rental booking operations
+
 paths:
-  /api/v1/products:
+  /api/v1/storage-units:
     get:
-      summary: List products
+      tags:
+        - storage-units
+      summary: List storage units
+      description: Retrieve list of storage units with optional filters
+      parameters:
+        - name: skip
+          in: query
+          schema:
+            type: integer
+            default: 0
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 100
+        - name: size
+          in: query
+          schema:
+            type: string
+            enum: [small, medium, large, extra_large]
+        - name: unit_type
+          in: query
+          schema:
+            type: string
+            enum: [indoor, outdoor, climate_controlled, vehicle, warehouse]
+        - name: available
+          in: query
+          schema:
+            type: boolean
+        - name: location_id
+          in: query
+          schema:
+            type: string
       responses:
         "200":
-          description: OK
+          description: List of storage units
+        "501":
+          description: Not implemented
+
     post:
-      summary: Create product
+      tags:
+        - storage-units
+      summary: Create storage unit
+      description: Create a new storage unit listing
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StorageUnitCreate'
       responses:
         "201":
-          description: Created
+          description: Storage unit created
+        "501":
+          description: Not implemented
 
-  /api/v1/products/{product_id}:
+  /api/v1/storage-units/{unit_id}:
     parameters:
-      - name: product_id
+      - name: unit_id
         in: path
         required: true
         schema:
           type: string
+
     get:
-      summary: Get product by ID
+      tags:
+        - storage-units
+      summary: Get storage unit by ID
       responses:
         "200":
-          description: OK
+          description: Storage unit details
+        "404":
+          description: Not found
+        "501":
+          description: Not implemented
+
     put:
-      summary: Update product
+      tags:
+        - storage-units
+      summary: Update storage unit
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StorageUnitUpdate'
       responses:
         "200":
           description: Updated
+        "404":
+          description: Not found
+        "501":
+          description: Not implemented
+
     delete:
-      summary: Delete product
+      tags:
+        - storage-units
+      summary: Delete storage unit
       responses:
         "204":
           description: Deleted
+        "404":
+          description: Not found
+        "501":
+          description: Not implemented
 
-  /api/v1/orders:
-    get:
-      summary: List orders
-      responses:
-        "200":
-          description: OK
-    post:
-      summary: Create order
-      responses:
-        "201":
-          description: Created
-
-  /api/v1/orders/{order_id}:
+  /api/v1/storage-units/{unit_id}/rentals:
     parameters:
-      - name: order_id
+      - name: unit_id
         in: path
         required: true
         schema:
           type: string
+
     get:
-      summary: Get order by ID
+      tags:
+        - storage-units
+      summary: Get storage unit with rental history
       responses:
         "200":
-          description: OK
+          description: Storage unit with rentals
+        "404":
+          description: Not found
+        "501":
+          description: Not implemented
+
+  /api/v1/storage-units/owner/{owner_user_id}:
+    parameters:
+      - name: owner_user_id
+        in: path
+        required: true
+        schema:
+          type: integer
+          description: Reference to users.user_id
+
+    get:
+      tags:
+        - storage-units
+      summary: Get storage units by owner
+      description: Integration endpoint for Users service
+      responses:
+        "200":
+          description: List of owner's storage units
+        "501":
+          description: Not implemented
+
+  /api/v1/storage-units/location/{location_id}:
+    parameters:
+      - name: location_id
+        in: path
+        required: true
+        schema:
+          type: string
+
+    get:
+      tags:
+        - storage-units
+      summary: Get storage units by location
+      description: Integration endpoint for Locations service
+      responses:
+        "200":
+          description: List of storage units at location
+        "501":
+          description: Not implemented
+
+  /api/v1/rentals:
+    get:
+      tags:
+        - rentals
+      summary: List rentals
+      parameters:
+        - name: skip
+          in: query
+          schema:
+            type: integer
+            default: 0
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 100
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, confirmed, active, completed, cancelled]
+      responses:
+        "200":
+          description: List of rentals
+        "501":
+          description: Not implemented
+
+    post:
+      tags:
+        - rentals
+      summary: Create rental
+      description: Book a storage unit
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RentalCreate'
+      responses:
+        "201":
+          description: Rental created
+        "501":
+          description: Not implemented
+
+  /api/v1/rentals/{rental_id}:
+    parameters:
+      - name: rental_id
+        in: path
+        required: true
+        schema:
+          type: string
+
+    get:
+      tags:
+        - rentals
+      summary: Get rental by ID
+      responses:
+        "200":
+          description: Rental details
+        "404":
+          description: Not found
+        "501":
+          description: Not implemented
+
     put:
-      summary: Update order
+      tags:
+        - rentals
+      summary: Update rental
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RentalUpdate'
       responses:
         "200":
           description: Updated
+        "404":
+          description: Not found
+        "501":
+          description: Not implemented
+
     delete:
-      summary: Delete order
+      tags:
+        - rentals
+      summary: Delete rental
       responses:
         "204":
           description: Deleted
+        "404":
+          description: Not found
+        "501":
+          description: Not implemented
 
-  /api/v1/orders/user/{user_id}:
+  /api/v1/rentals/{rental_id}/confirm:
     parameters:
-      - name: user_id
+      - name: rental_id
         in: path
         required: true
         schema:
           type: string
-    get:
-      summary: Get orders by user ID
+
+    post:
+      tags:
+        - rentals
+      summary: Confirm rental
+      description: Change status from pending to confirmed
       responses:
         "200":
-          description: OK
+          description: Confirmed
+        "501":
+          description: Not implemented
 
-  /api/v1/orders/facility/{facility_id}:
+  /api/v1/rentals/{rental_id}/activate:
     parameters:
-      - name: facility_id
+      - name: rental_id
         in: path
         required: true
         schema:
           type: string
-    get:
-      summary: Get orders by facility ID
+
+    post:
+      tags:
+        - rentals
+      summary: Activate rental
+      description: Change status to active when rental period starts
       responses:
         "200":
-          description: OK
+          description: Activated
+        "501":
+          description: Not implemented
+
+  /api/v1/rentals/{rental_id}/complete:
+    parameters:
+      - name: rental_id
+        in: path
+        required: true
+        schema:
+          type: string
+
+    post:
+      tags:
+        - rentals
+      summary: Complete rental
+      description: Change status to completed and mark unit as available
+      responses:
+        "200":
+          description: Completed
+        "501":
+          description: Not implemented
+
+  /api/v1/rentals/{rental_id}/cancel:
+    parameters:
+      - name: rental_id
+        in: path
+        required: true
+        schema:
+          type: string
+
+    post:
+      tags:
+        - rentals
+      summary: Cancel rental
+      description: Cancel rental and mark unit as available
+      responses:
+        "200":
+          description: Cancelled
+        "501":
+          description: Not implemented
+
+  /api/v1/rentals/renter/{renter_user_id}:
+    parameters:
+      - name: renter_user_id
+        in: path
+        required: true
+        schema:
+          type: integer
+          description: Reference to users.user_id (renter)
+      - name: active_only
+        in: query
+        schema:
+          type: boolean
+          default: false
+
+    get:
+      tags:
+        - rentals
+      summary: Get rentals by renter
+      description: Integration endpoint for Users service (renter perspective)
+      responses:
+        "200":
+          description: List of rentals
+        "501":
+          description: Not implemented
+
+  /api/v1/rentals/owner/{owner_user_id}:
+    parameters:
+      - name: owner_user_id
+        in: path
+        required: true
+        schema:
+          type: integer
+          description: Reference to users.user_id (owner)
+      - name: active_only
+        in: query
+        schema:
+          type: boolean
+          default: false
+
+    get:
+      tags:
+        - rentals
+      summary: Get rentals by owner
+      description: Integration endpoint for Users service (owner perspective)
+      responses:
+        "200":
+          description: List of rentals
+        "501":
+          description: Not implemented
+
+  /api/v1/rentals/storage-unit/{storage_unit_id}:
+    parameters:
+      - name: storage_unit_id
+        in: path
+        required: true
+        schema:
+          type: string
+
+    get:
+      tags:
+        - rentals
+      summary: Get rentals by storage unit
+      responses:
+        "200":
+          description: Rental history
+        "501":
+          description: Not implemented
+
+  /api/v1/rentals/location/{location_id}:
+    parameters:
+      - name: location_id
+        in: path
+        required: true
+        schema:
+          type: string
+
+    get:
+      tags:
+        - rentals
+      summary: Get rentals by location
+      description: Integration endpoint for Locations service
+      responses:
+        "200":
+          description: Rentals at location
+        "501":
+          description: Not implemented
+
+components:
+  schemas:
+    Money:
+      type: object
+      required:
+        - amount
+        - currency
+      properties:
+        amount:
+          type: number
+          format: float
+          minimum: 0
+        currency:
+          type: string
+          default: USD
+
+    StorageUnitCreate:
+      type: object
+      required:
+        - name
+        - size
+        - unit_type
+        - location_id
+        - owner_user_id
+        - price_per_month
+      properties:
+        name:
+          type: string
+          example: "Secure 10x10 Indoor Unit"
+        description:
+          type: string
+          example: "Climate-controlled storage unit in downtown area"
+        size:
+          type: string
+          enum: [small, medium, large, extra_large]
+          example: medium
+        unit_type:
+          type: string
+          enum: [indoor, outdoor, climate_controlled, vehicle, warehouse]
+          example: climate_controlled
+        dimensions:
+          type: string
+          example: "10x10x8"
+        location_id:
+          type: string
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        owner_user_id:
+          type: integer
+          description: Reference to users.user_id
+          example: 123
+        price_per_month:
+          $ref: '#/components/schemas/Money'
+        available:
+          type: boolean
+          default: true
+        features:
+          type: array
+          items:
+            type: string
+          example: ["24/7 access", "security cameras", "climate controlled"]
+
+    StorageUnitUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        size:
+          type: string
+          enum: [small, medium, large, extra_large]
+        unit_type:
+          type: string
+          enum: [indoor, outdoor, climate_controlled, vehicle, warehouse]
+        dimensions:
+          type: string
+        price_per_month:
+          $ref: '#/components/schemas/Money'
+        available:
+          type: boolean
+        features:
+          type: array
+          items:
+            type: string
+
+    RentalCreate:
+      type: object
+      required:
+        - storage_unit_id
+        - renter_user_id
+        - start_date
+        - monthly_rate
+      properties:
+        storage_unit_id:
+          type: string
+          example: "unit-uuid-123"
+        renter_user_id:
+          type: integer
+          description: Reference to users.user_id (renter)
+          example: 456
+        start_date:
+          type: string
+          format: date-time
+          example: "2025-02-01T00:00:00Z"
+        end_date:
+          type: string
+          format: date-time
+          nullable: true
+          example: "2025-08-01T00:00:00Z"
+        monthly_rate:
+          $ref: '#/components/schemas/Money'
+        status:
+          type: string
+          enum: [pending, confirmed, active, completed, cancelled]
+          default: pending
+        notes:
+          type: string
+          example: "Need access on weekends"
+
+    RentalUpdate:
+      type: object
+      properties:
+        end_date:
+          type: string
+          format: date-time
+          nullable: true
+        status:
+          type: string
+          enum: [pending, confirmed, active, completed, cancelled]
+        notes:
+          type: string
