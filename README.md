@@ -141,6 +141,20 @@ This microservice uses a **Swagger/API-first** design approach:
 
 ---
 
+```markdown
+## Deployment (Cloud Run)
+
+This microservice is now successfully deployed using Google Cloud Run.
+
+**Live URL** (Swagger Docs):
+https://storage-rental-service-679611365388.us-central1.run.app/docs
+
+**Test Endpoint (curl):**
+```bash
+curl https://storage-rental-service-679611365388.us-central1.run.app/api/v1/rentals/
+
+---
+
 ## 👥 Team
 
 **Wali + Aashish**
