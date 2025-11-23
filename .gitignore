@@ -5,3 +5,8 @@ __pycache__/
 .DS_Store
 .vscode/
 .idea/
+
+# .gitignore
+.env
+__pycache__/
+*.pyc
