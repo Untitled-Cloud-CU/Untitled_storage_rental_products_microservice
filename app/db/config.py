@@ -11,32 +11,24 @@ from dotenv import load_dotenv
 # Load .env variables into Python process
 load_dotenv()
 
-# Read environment variables (must exist in .env OR in Cloud Run env)
+# Read environment variables
 DB_USER = os.getenv("DB_USER")
 DB_PASS = os.getenv("DB_PASS")
-DB_HOST = os.getenv("DB_HOST")
+DB_HOST = os.getenv("DB_HOST")   # MUST be unix socket path
 DB_NAME = os.getenv("DB_NAME")
-DB_PORT = os.getenv("DB_PORT", "3306")  # default 3306 if not provided
 
-# Build SQLAlchemy connection string
-DATABASE_URL = f"mysql+pymysql://{DB_USER}:{DB_PASS}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+# --- 🔥 Use UNIX socket inside Cloud Run ---
+DATABASE_URL = f"mysql+pymysql://{DB_USER}:{DB_PASS}@/{DB_NAME}?unix_socket={DB_HOST}"
 
-# Create engine (main.py imports this)
 engine = create_engine(
     DATABASE_URL,
-    echo=True,         # log SQL queries - keep ON for dev
-    pool_pre_ping=True
+    echo=True,
+    pool_pre_ping=True,
 )
 
-# Session factory (used via FastAPI dependency)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 def get_db():
-    """
-    Get a database session.
-    Always close after use.
-    FastAPI will call this per-request.
-    """
     db = SessionLocal()
     try:
         yield db
